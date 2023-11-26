@@ -30,8 +30,7 @@ public class ASDI implements Parser{
     public boolean parse() {
 
         String entrada = "";
-        int j,k = 0;
-        int fila = 0, columna = 0;
+        int j = 0;
         Stack <String> pila = new Stack <String>();
         pila.push("$");
         pila.push("T");
@@ -46,35 +45,22 @@ public class ASDI implements Parser{
                 entrada = "id";
             else 
                 entrada = tokens.get(i).lexema;
-            
-            for( k=1;i<tablaAS.length;;i++){
-                if(tablaAS[i][0].equals( pila.peek()) )
-                    fila = k;
-                else 
-                    fila = -1;
-            }
 
-            for( k=1;i<l;i++){
-                if(tablaAS[0][i].equals(entrada) )
-                    columna = k;
-                else 
-                    columna = -1;
-            }
 
             if (pila.peek().equals(entrada)){
                 pila.pop();
                 i++;
             }
-            else if( pila.peek().equals("id") || (pila.peek().equals("select") || (pila.peek().equals("from") || (pila.peek().equals("distinct") || (pila.peek().equals(",") || (pila.peek().equals(".") || (pila.peek().equals("*") ){
+            else if( esTerminal(pila.peek()) ){
                 hayErrores = true;
                 break;
             }
-            else if( !(pila.peek().equals("id") || (pila.peek().equals("select") || (pila.peek().equals("from") || (pila.peek().equals("distinct") || (pila.peek().equals(",") || (pila.peek().equals(".") || (pila.peek().equals("*") ) && 
-                    TablaAS[fila][columna].equals("") ){
+            else if( !esTerminal(pila.peek()) && 
+                     TablaAS[buscaNoTerminal(TablaAS, pila.peek() )][buscaTerminal(TablaAS, entrada )].equals("") ){
                 hayErrores = true;
                 break;
             }else{
-                String[] producciones = TablaAS[fila][columna].split(" "); 
+                String[] producciones = TablaAS[buscaNoTerminal(TablaAS, pila.peek() )][buscaTerminal(TablaAS, entrada )].split(" "); 
                 j = producciones.length;
                 pila.pop();
                 while(j>0){
@@ -94,5 +80,37 @@ public class ASDI implements Parser{
         return false;
     }
 
+    private boolean esTerminal(String tope){
+        if( tope == "id" || 
+            tope == "select" || 
+            tope == "from" || 
+            tope == "distinct" || 
+            tope == "," || 
+            tope == "." || 
+            tope == "*" ){
+            return true;
+        }
+        else{
+           return false;
+        }
+    }
+
+    private int buscaNoTerminal(String tablaAS [][], String noTerminal){
+        int l = tablaAS.length;
+        for(int i=1;i<l;i++){
+            if(tablaAS[i][0].equals(noTerminal) )
+                return i;
+        }
+        return -1;
+    }
+
+    private int buscaTerminal(String tablaAS [][], String terminal){
+        int l = tablaAS[0].length;
+        for(int i=1;i<l;i++){
+            if(tablaAS[0][i].equals(terminal) )
+                return i;
+        }
+        return -1;
+    }
 }
 
